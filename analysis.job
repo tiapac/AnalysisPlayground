@@ -1,0 +1,25 @@
+#!/bin/bash --login
+#SBATCH --job-name=plots
+#SBATCH --output=plots_%A.%N.log
+#SBATCH --error=errplots_%A.%N.log
+#SBATCH --partition=smp
+#SBATCH --ntasks=32
+#SBATCH --time=0-16:00:00
+#SBATCH--mem-per-cpu=10000
+#SBATCH --mail-type=begin,end,fail
+#SBATCH --mail-user=tiacluster.notification@gmail.com
+initial=$1
+final=$2
+axes="x y z"
+ncpu=32
+for axis in $axes
+do
+python3.11  /work/pacicco/analysis_playground/quickplot.py $initial density                 -n2 $final --vlim 7e-27 2.0e-22 -cpus $ncpu -ax $axis -tuo kyr 0.0
+python3.11 /work/pacicco/analysis_playground/quickplot.py $initial magnetic_field_magnitude -n2 $final --vlim 1e-7  2.0e-4  -cpus $ncpu -ax $axis -tuo kyr 0.0
+python3.11 /work/pacicco/analysis_playground/quickplot.py $initial temperature              -n2 $final --vlim 1e1   1.0e8   -cpus $ncpu -ax $axis -tuo kyr 0.0
+python3.11 /work/pacicco/analysis_playground/quickplot.py $initial magnetic_field_xz        -n2 $final --vlim 1e-7  2.0e-4  -cpus $ncpu -ax $axis -tuo kyr 0.0
+python3.11 /work/pacicco/analysis_playground/quickplot.py $initial velocity_magnitude       -n2 $final --vlim 1.0e0  1.0e3  -cpus $ncpu -ax $axis -tuo kyr 0.0
+python3.11 /work/pacicco/analysis_playground/quickplot.py $initial pressure                 -n2 $final                      -cpus $ncpu -ax $axis -tuo kyr 0.0
+python3.11 /work/pacicco/analysis_playground/quickplot.py $initial magnetic_pressure        -n2 $final                      -cpus $ncpu -ax $axis -tuo kyr 0.0
+python3.11 /work/pacicco/analysis_playground/quickplot.py $initial xray_emissivity          -n2 $final --vlim 1e-6  5e-3    -cpus $ncpu -ax $axis -tuo kyr 0.0 -xb 0.1 9.0 -pj
+done 

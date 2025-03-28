@@ -1,0 +1,20 @@
+#!/bin/bash --login
+#SBATCH --job-name=TI
+#SBATCH --output=run_%A.%N.log
+##SBATCH --error=err_%A.%N.log
+#SBATCH --partition=ompi13,ompi14,ompi16,ompi18,ompi19,ompi21,ompi22,ompi26,ompi30
+#SBATCH --exclude=node934,node921
+#SBATCH --constraint=ib:mlnx
+#SBATCH --ntasks=200
+#SBATCH --time=0-24:00:00
+#SBATCH --mem-per-cpu=2500
+#SBATCH --mail-type=begin,end,fail
+#SBATCH --mail-user=tiacluster.notification@gmail.com
+
+module unload ompi
+module load ompi/intel/2.1.1	
+mpirun -np 200 ../../bin/ramsesMHD3d ./sb2anal.nml 0
+
+
+#srun --time=02:00:00 --partition=ompi* --nodes=4 --ntasks-per-node=28 --mem-per-cpu=2000 bash --login
+#salloc --time=05:00:00 --partition=smp --ntasks=1 --mem-per-cpu=5000 bash --login

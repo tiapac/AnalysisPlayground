@@ -1,0 +1,9 @@
+[submodule "FastPlots"]
+	path = FastPlots
+	url = git@github.com:tiapac/FastPlots.git
+[submodule "CuloPy"]
+	path = CuloPy
+	url = git@github.com:tiapac/CuloPy.git
+[submodule "unities"]
+	path = unities
+	url = git@github.com:tiapac/unities.git

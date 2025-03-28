@@ -1,0 +1,360 @@
+&RUN_PARAMS 
+hydro=.true.
+pic=.true.
+cosmo=.false.
+sink=.false.
+poisson=.false.
+static_stars=.false. !! do not movesn sites !!
+ncontrol=10
+nsubcycle=12*2 !1,1,1,2,2,2,2 !
+nremap=20
+nrestart=0
+verbose  =.false.
+clumpfind=.false.
+debug    =.false.
+
+!nstepmax=0
+!nexpand =1
+/
+
+&OUTPUT_PARAMS
+!noutput=1
+delta_tout= 2.0
+tend= 10.0      !0.1       !1. !2.0d0
+!foutput=
+!minute_dump=
+/
+
+
+
+&POISSON_PARAMS
+gravity_type=0
+/  
+
+&AMR_PARAMS 
+levelmin=8
+levelmax=12
+ngridmax=355000 
+boxlen=150.0 
+!npartmax=10000
+nparttot=1000
+
+/
+
+&BOUNDARY_PARAMS
+! 0: periodic, 1: reflexive, 
+! 2: outflow 3: inflow 
+nboundary=2
+bound_type=0,0!2,2
+ibound_min=0,0
+ibound_max=0,0
+jbound_min=0,0
+jbound_max=0,0
+kbound_min=-1,+1
+kbound_max=-1,+1
+!no_inflow = .true.
+/
+
+&INIT_PARAMS
+nregion=0
+multiple=.true.
+region_type(1)='square'
+
+x_center=50.0
+y_center=50.0
+z_center=50.0
+length_x=100.0
+length_y=100.0
+length_z=100.0
+exp_region=10.0!, 11 !!!!!!!!! DO NOT CHANGE IT OR ELSE...
+!d_region= 0.02991967921109078!0.000000002991967921109078!0.02991967921109078
+!p_region= 474.2888065928147  !0.000000004742888065928147!474.2888065928147
+u_region=0.0
+v_region=0.0!760.24068269780508
+w_region=0.0
+initfile(1)="./" 
+aexp_ini=1.0
+multiple=.true.
+
+/
+ 
+
+&HYDRO_PARAMS
+gamma=1.6666667
+courant_factor=0.8
+riemann='hlld'
+riemann2d='hlld'
+slope_type=1        ! Min-Mod slope limiter
+scheme='muscl'
+pressure_fix=.true. ! hybrid energy scheme
+beta_fix=0.5
+smallr=1d-40
+smallc=1d-2
+
+/
+
+&COOLING_PARAMS
+cooling=.true.
+
+z_ave=1.0
+/
+
+&GRACKLE_PARAMS
+use_grackle=1
+grackle_UVbackground=0
+grackle_primordial_chemistry=0
+
+grackle_photoelectric_heating = 1
+grackle_photoelectric_heating_rate = 2d-26
+grackle_HydrogenFractionByMass=0.716d0 ! only this primordial value is consistent with X=0.70651 and Z=0.01295 in Grackle's tabulated mode
+grackle_metal_cooling=1
+
+grackle_data_file="/work/pacicco/grackle/grackle_data_files/input/CloudyData_noUVB.h5"
+!grackle_data_file="/work/pacicco/grackle/grackle_data_files/input/CloudyData_UVB=HM2012.h5"
+/
+
+&FEEDBACK_PARAMS
+eta_sn=1.0
+mass_sne_min=8.0
+/
+
+
+
+
+&REFINE_PARAMS 
+interpol_var=1     ! primitives
+interpol_type=0     ! straight injection (1st order)
+
+err_grad_p=0.5
+err_grad_d=0.5
+!err_grad_B2=100.0
+!err_grad_u=0.5
+ivar_refine=9
+var_cut_refine=1.0d-15
+
+!exp_refine = 10*12
+!x_refine   = 10*800
+!y_refine   = 10*800
+!z_refine   = 10*800
+!r_refine   = 10*400
+!a_refine   = 10*1
+!b_refine   = 10*2
+
+
+
+mass_sph=-1 !1.4256043618519323
+m_refine=10*-1 !.01,1.01,1.01,1.01,1.01
+/
+
+&RUN
+starting_time      = -1 !0.0
+small_dt_init      = 1.d-10
+time_myr           = .true.
+
+/
+
+&PARTICLES
+
+lookup_stars                       = .false.
+filename_stellar_trajectories      = "/fast/pacicco/ramses_inkTurb/ramses_ink/mypatch_mhdMi_star/mine/trajectories"
+path_to_stellar_evolutionary_tracks= "/fast/pacicco/ramses_inkTurb/ramses_ink/mypatch_mhdMi_star/mine"
+addic                              = "old"  !"new"!"new"           !"old"!"new"
+/
+
+
+&COOLING
+cooling_thres                      = 1d1
+ink_thres                          = -1.0 !1d-15
+analytical = .false. 
+analytical_func=1
+/
+
+
+&REFINEMENT
+refinement_strategy    = "follow_particles"!"follow_particles" !"central_region" !"follow_particles"!"no_refinement"
+!force_refine_to_level = 7
+!fixed_refine_r         = 20			!!should always be greater than the dx at levelmin
+
+dx_multiple_refine     = 5  
+background_max_refine  = 9
+tmp_max_refine         = 10
+/
+
+
+&IOdump
+restart_from_backup  = .true.
+out_path             ="./5e-26_highres" !! always include full ./ or full path
+back_path            ="./backups" !! always include full ./ or full path
+recurrent_backup_hrs = 2.0
+light_dump           = .false.
+light_amr_dump       = .false.
+gravity_dump         = .true.
+only_vmag            = .false.
+only_bmag            = .false.
+/
+
+
+
+
+&STELLAR_FEEDBACK
+ncontrol_feedback  = -1
+whichmodel         = "spherical_region" !"spherical_region" !"onecell"
+cell_centered      = .false.
+!kinetic           = .false.
+no_sn              = .false.
+no_wind            = .true. 
+bh_force_sn        = .true.
+mass_injection     = .true.
+E_sn               = 1.0d51
+fk_SN              = .0     ! SOMETHING IS OFF. shoud STAY SET TO 0.
+
+!r_inj             = 0.002  !!! shoud alway be r_inj<0.5*fixed_refine_r
+dx_multiple        = 4.0
+des_ngb            = 4      !!! 64 is better....
+! M_sun/yr,km/s   
+wind_model         = "stellar_evo" !"constant" !"stellar_evo" "bistability_jump"
+!mdot_const         = 5.0d-7
+!wind_terminal_const= 2000.
+flicker_sw         = -1.
+/
+
+
+
+&UNITS_PARAMS
+units_density = 6.770254178782395d-23 !6.7679255871108488E-026 ! This is solar mass. Used to compute denisty as units_density/scale_l**3
+units_time    = 4.70437365d+14              !14879094718393414.            !this is set automatically as 1/sqrt(G*scale_d) --> G=1 in Poisson solver
+units_length  = 3.0856776d18          ! = 1pc
+/
+
+
+&PARTICLES UNITS
+pscale_l = 3.0856776d18
+pscale_m = 1.98841586d33
+pscale_v = 1.0d5
+pscale_t = 3.15576000d13
+/
+
+&IC_OBJECTS
+!disk  
+!disk%rho0  = 7.005273279999999492d-01  !1.0
+!disk%T0    = 6.167396659348973117d+03  !3050.0   ! 0.6d4
+
+disk%rho0  = 7.005273279999999492d-01   
+disk%T0    = 6.167396659348973117d+03   ! 0.6d4
+
+
+
+disk%model = "uniform"
+
+disk%Bx0   = 0.0d-6 
+disk%By0   = 20.0d-6 
+disk%Bz0   = 0.0d-6
+disk%alpha_mag = 0.0
+
+halo%add = .false.
+
+halo%model = "halo" 
+halo%T0    = 0.0
+halo%rho0  = 0.0 !0.00007
+halo%Bx0   = 0.0d-6 
+halo%By0   = 5.0d-6 
+halo%Bz0   = 0.0d-6
+halo%alpha_mag = 0.0
+
+
+Bturb     = .false.
+rhoturb   = .false.
+setclouds = .false.
+vturb     = .false.
+vrms      = 0.01 !70.0
+brms      = 1.0
+Lc0       = 2.0
+/
+
+
+&CONTROL
+compute_phases=.true.
+deltat_phases=.005 !0.1
+!binT     = 1.0d2,  5.0d2, 1.0d3, 2.0d3, 4.0d3, 6.0d3, 8.0d3,1.0d4 
+binT     = 1.0d2,  5.0d2, 1.0d3, 1.0d4, 2.0d4, 1.0d5, 1.0d6, 1.0d7, 1.0d8  
+min_vmag = 15.0d5
+
+engfilename="SN_eng2.dat"!"TI_eng.dat"
+avefilename="SN_ave2.dat"!"TI_ave.dat"
+/
+
+&extIC
+readIC=.true.
+ICfile="./randDistr/RandomField.dat"
+/
+
+&MOVIE_PARAMS
+movie=.true.
+imov=0
+
+tstartmov=0.0
+tendmov=1.0
+imovout=400
+
+nw_frame=1080
+nh_frame=1080
+
+levelmax_frame=14
+
+theta_camera =0.0, 0.0, 0.0, 0.0, 0.0
+phi_camera   =0.0, 0.0, 0.0, 0.0, 0.0
+
+!dtheta_camera=360.0, 0.0, 0.0, 0.0, 0.0
+!dphi_camera  =0.0, 0.0, 0.0, 0.0, 0.0
+
+!dist_camera  = 250.0,200.0,150.0,150.0,150.0
+!focal_camera = 250.0,500.0,150.0,150.0,150.0
+
+perspective_camera=.true.,.false.,.false.,.false.,.false.
+
+!shader_frame=cube!,cube,cube,cube,cube !,sphere
+
+!xcentre_frame =0.0,63.0,63.0     !,2.5 !75.0, 75.0,75.0, 75.0  
+!ycentre_frame =63.0,0.0,63.0  !,2.5 !75.0, 75.0,75.0, 75.0  
+!zcentre_frame =63.0,63.0,0.0  !,2.5 !75.0, 75.0,75.0, 75.0 
+
+!deltax_frame=  -100.0, 250.0, 0.0, 150.0,0.0, 150.0,0.0, 150.0,0.0, 150.0
+!deltax_frame=  -100.0, 250.0, 0.0, 150.0,0.0, 150.0,0.0, 150.0,0.0, 150.0
+!deltax_frame=  -100.0, 250.0, 0.0, 150.0,0.0, 150.0,0.0, 150.0,0.0, 150.0
+
+
+
+proj_axis='yzyx'
+
+movie_vars_txt="dens","temp", "pmag"
+
+method_frame="sum", "mean_mass", "mean_mass", "mean_mass", "mean_mass" !!mean_mass (default), mean_dens, mean_vol, sum, min, max
+/
+
+
+
+&MOVIE_CONTROL
+thin_slice=.false.,.true.,.true.,.true.,.true.
+delta_slice = 1.0
+
+/
+&CLUMPFIND_PARAMS
+density_threshold=0.15
+saddle_threshold=0.08
+output_clump_field=.true.
+clinfo=.false.
+/
+
+&TURB_PARAMS
+turb=.false.
+turb_type=1         ! 1=forced evolving, 2=forced fixed, 3=decaying
+turb_seed=1         ! -1 = random
+comp_frac=0.        ! compressive fraction
+instant_turb=.true. ! Generate initial turbulence before start
+forcing_power_spectrum='power_law' !power_law, parabolic, konstandin, test
+turb_T=1.5        !0.29241000937376255
+turb_Ndt=100        ! Number of timesteps per autocorr. time
+turb_rms=70.0      ! rms turbulent forcing acceleration
+!turb_min_rho=2.5470372511355715d-6 ! Minimum density for turbulence
+turb_gs=64
+/
